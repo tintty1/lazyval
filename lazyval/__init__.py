@@ -39,10 +39,8 @@ Usage:
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, overload
-
-if TYPE_CHECKING:
-    from typing import Optional
+from collections.abc import Callable
+from typing import Any, Generic, TypeVar
 
 __all__ = [
     "Lazy",
@@ -149,39 +147,25 @@ class Lazy(Generic[T]):
 
     # Arithmetic operators
     def __add__(self, other: Any) -> Any:
-        return self._get_value() + (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() + (other._get_value() if isinstance(other, Lazy) else other)
 
     def __sub__(self, other: Any) -> Any:
-        return self._get_value() - (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() - (other._get_value() if isinstance(other, Lazy) else other)
 
     def __mul__(self, other: Any) -> Any:
-        return self._get_value() * (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() * (other._get_value() if isinstance(other, Lazy) else other)
 
     def __truediv__(self, other: Any) -> Any:
-        return self._get_value() / (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() / (other._get_value() if isinstance(other, Lazy) else other)
 
     def __floordiv__(self, other: Any) -> Any:
-        return self._get_value() // (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() // (other._get_value() if isinstance(other, Lazy) else other)
 
     def __mod__(self, other: Any) -> Any:
-        return self._get_value() % (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() % (other._get_value() if isinstance(other, Lazy) else other)
 
     def __pow__(self, other: Any) -> Any:
-        return self._get_value() ** (
-            other._get_value() if isinstance(other, Lazy) else other
-        )
+        return self._get_value() ** (other._get_value() if isinstance(other, Lazy) else other)
 
     # Reverse arithmetic operators
     def __radd__(self, other: Any) -> Any:
@@ -244,9 +228,7 @@ class Lazy(Generic[T]):
         """Support for attribute access: lazy_obj.attribute"""
         # Avoid infinite recursion on internal attributes
         if name.startswith("_"):
-            raise AttributeError(
-                f"'{type(self).__name__}' object has no attribute '{name}'"
-            )
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
         return getattr(self._get_value(), name)
 
     def __setattr__(self, name: str, value: Any) -> None:
@@ -328,9 +310,9 @@ def dumps(
     ensure_ascii: bool = True,
     check_circular: bool = True,
     allow_nan: bool = True,
-    indent: Optional[int] = None,
-    separators: Optional[tuple[str, str]] = None,
-    default: Optional[Callable[[Any], Any]] = None,
+    indent: int | None = None,
+    separators: tuple[str, str] | None = None,
+    default: Callable[[Any], Any] | None = None,
     sort_keys: bool = False,
     **kwargs: Any,
 ) -> str:

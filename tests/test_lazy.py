@@ -1,8 +1,10 @@
 """Tests for the lazy evaluation library."""
 
 import json
+
 import pytest
-from lazyval import Lazy, lazy, dumps, loads, lazy_json_default, LazyJSONEncoder
+
+from lazyval import Lazy, LazyJSONEncoder, dumps, lazy, lazy_json_default, loads
 
 
 class TestLazyBasics:
