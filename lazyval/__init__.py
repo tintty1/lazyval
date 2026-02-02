@@ -66,6 +66,8 @@ class Lazy(Generic[T]):
 
     Args:
         func: A callable that returns the value to be lazily evaluated
+        *args: Positional arguments to pass to the function when evaluated
+        **kwargs: Keyword arguments to pass to the function when evaluated
 
     Example:
         >>> def expensive_operation():
@@ -74,21 +76,28 @@ class Lazy(Generic[T]):
         >>> lazy_val = Lazy(expensive_operation)
         >>> print(lazy_val > 10)  # Prints "Computing..." then True
         >>> print(lazy_val > 10)  # Just prints True (cached)
+
+        >>> def add(a, b):
+        ...     return a + b
+        >>> lazy_sum = Lazy(add, 5, 10)
+        >>> print(lazy_sum)  # Prints 15
     """
 
-    __slots__ = ("_func", "_evaluated", "_value")
+    __slots__ = ("_func", "_args", "_kwargs", "_evaluated", "_value")
 
-    def __init__(self, func: Callable[[], T]) -> None:
+    def __init__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> None:
         if not callable(func):
             raise TypeError(f"Expected callable, got {type(func).__name__}")
         object.__setattr__(self, "_func", func)
+        object.__setattr__(self, "_args", args)
+        object.__setattr__(self, "_kwargs", kwargs)
         object.__setattr__(self, "_evaluated", False)
         object.__setattr__(self, "_value", None)
 
     def _get_value(self) -> T:
         """Evaluate the function if not already evaluated and return the cached value."""
         if not self._evaluated:
-            object.__setattr__(self, "_value", self._func())
+            object.__setattr__(self, "_value", self._func(*self._args, **self._kwargs))
             object.__setattr__(self, "_evaluated", True)
         return self._value  # type: ignore[return-value]
 
@@ -373,7 +382,7 @@ _register_yaml_representer()
 
 
 # Convenience function
-def lazy(func: Callable[[], T]) -> Lazy[T]:
+def lazy(func: Callable[..., T], *args: Any, **kwargs: Any) -> Lazy[T]:
     """
     Decorator/function to create a lazy value.
 
@@ -386,5 +395,9 @@ def lazy(func: Callable[[], T]) -> Lazy[T]:
 
         # Or use directly:
         >>> lazy_val = lazy(lambda: 42)
+
+        # With arguments:
+        >>> lazy_val = lazy(lambda x, y: x + y, 5, 10)
+        >>> print(lazy_val)  # Prints 15
     """
-    return Lazy(func)
+    return Lazy(func, *args, **kwargs)

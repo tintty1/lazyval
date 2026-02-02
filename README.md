@@ -46,6 +46,21 @@ if lazy_val > 10:  # Function executes here
     print("Large value")
 ```
 
+### Function Arguments
+
+Pass arguments and keyword arguments to be used when the function is evaluated:
+
+```python
+def fetch_user(user_id, include_details=False):
+    return database.get_user(user_id, include_details)
+
+# Arguments are stored and passed when evaluated
+lazy_user = Lazy(fetch_user, 123, include_details=True)
+
+# Function executes with args when first accessed
+print(lazy_user["name"])
+```
+
 ### Automatic Caching
 
 Once evaluated, the result is cached:
@@ -132,13 +147,38 @@ if config["debug"]:
     print("Debug mode")
 ```
 
+### `lazy()` with Arguments
+
+```python
+from lazyval import lazy
+
+def fetch_data(url, timeout=30):
+    return requests.get(url, timeout=timeout).json()
+
+# Create a lazy value with arguments
+lazy_data = lazy(fetch_data, "https://api.example.com", timeout=10)
+
+# Function executes with args when first accessed
+print(lazy_data["result"])
+```
+
 ## API Reference
 
-### `Lazy(func)`
+### `Lazy(func, *args, **kwargs)`
 
 Create a lazy wrapper around a callable.
 
-- `func`: A zero-argument callable that returns the value
+- `func`: A callable that returns the value
+- `*args`: Positional arguments to pass to the function when evaluated
+- `**kwargs`: Keyword arguments to pass to the function when evaluated
+
+```python
+# Without arguments
+Lazy(lambda: 42)
+
+# With arguments
+Lazy(fetch_data, user_id, limit=10)
+```
 
 ### Properties and Methods
 

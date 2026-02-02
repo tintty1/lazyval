@@ -38,6 +38,47 @@ class TestLazyBasics:
         with pytest.raises(TypeError, match="Expected callable"):
             Lazy(42)  # type: ignore
 
+    def test_with_positional_args(self):
+        def add(a, b):
+            return a + b
+
+        lazy_val = Lazy(add, 5, 10)
+        assert lazy_val == 15
+
+    def test_with_keyword_args(self):
+        def greet(name, greeting="Hello"):
+            return f"{greeting}, {name}!"
+
+        lazy_val = Lazy(greet, "World", greeting="Hi")
+        assert lazy_val == "Hi, World!"
+
+    def test_with_only_kwargs(self):
+        def make_dict(**kwargs):
+            return kwargs
+
+        lazy_val = Lazy(make_dict, a=1, b=2, c=3)
+        assert lazy_val == {"a": 1, "b": 2, "c": 3}
+
+    def test_with_mixed_args_kwargs(self):
+        def func(a, b, c=30, d=40):
+            return a + b + c + d
+
+        lazy_val = Lazy(func, 1, 2, c=3, d=4)
+        assert lazy_val == 10
+
+    def test_args_evaluated_once(self):
+        calls = []
+
+        def tracked_add(a, b):
+            calls.append((a, b))
+            return a + b
+
+        lazy_val = Lazy(tracked_add, 5, 10)
+        _ = lazy_val + 0
+        _ = lazy_val + 0
+        assert len(calls) == 1
+        assert calls[0] == (5, 10)
+
 
 class TestStringRepresentation:
     """String formatting and representation."""
@@ -172,6 +213,20 @@ class TestDecorator:
             return 42
 
         assert expensive == 42
+
+    def test_lazy_function_with_args(self):
+        def multiply(a, b):
+            return a * b
+
+        lazy_val = lazy(multiply, 6, 7)
+        assert lazy_val == 42
+
+    def test_lazy_function_with_kwargs(self):
+        def greet(name, greeting="Hello"):
+            return f"{greeting}, {name}!"
+
+        lazy_val = lazy(greet, "World", greeting="Hi")
+        assert lazy_val == "Hi, World!"
 
 
 class TestJSON:
